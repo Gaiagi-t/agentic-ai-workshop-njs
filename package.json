@@ -9,7 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/pdfkit": "^0.17.5",
+    "docx": "^9.6.1",
+    "file-saver": "^2.0.5",
+    "framer-motion": "^12.38.0",
+    "html-to-image": "^1.11.13",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^0.577.0",
     "next": "16.2.0",
+    "openai": "^6.32.0",
+    "pdfkit": "^0.18.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
