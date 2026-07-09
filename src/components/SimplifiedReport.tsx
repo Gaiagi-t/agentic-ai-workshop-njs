@@ -93,19 +93,36 @@ export default function SimplifiedReport({
     }
 
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
+      // Clone the element to avoid modifying the original
+      const clonedElement = element.cloneNode(true) as HTMLElement;
+
+      // Create a temporary container
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "fixed";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.top = "-9999px";
+      tempContainer.style.width = "800px";
+      tempContainer.style.backgroundColor = "white";
+      tempContainer.appendChild(clonedElement);
+      document.body.appendChild(tempContainer);
+
+      const canvas = await html2canvas(tempContainer, {
+        scale: 1.5,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
         allowTaint: true,
+        width: 800,
+        windowWidth: 800,
       });
+
+      document.body.removeChild(tempContainer);
 
       const pdf = new jsPDF("p", "mm", "a4");
       const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      let imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
       let position = 0;
 
@@ -119,10 +136,11 @@ export default function SimplifiedReport({
         heightLeft -= pageHeight;
       }
 
-      pdf.save(`${data.useCase.replace(/\s+/g, "-").toLowerCase()}-agente-config.pdf`);
+      const filename = `${data.useCase.replace(/\s+/g, "-").toLowerCase()}-agente-config.pdf`;
+      pdf.save(filename);
     } catch (error) {
       console.error("Export PDF error:", error);
-      alert("Errore durante il download del PDF. Prova di nuovo.");
+      alert("Errore durante il download del PDF. Prova di nuovo o scarica come immagine.");
     }
   };
 
