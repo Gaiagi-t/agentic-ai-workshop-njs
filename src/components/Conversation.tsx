@@ -79,7 +79,65 @@ export default function Conversation() {
   const [isFinished, setIsFinished] = useState(false);
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  // Test conversation data
+  const testConversation = [
+    { role: "user" as const, content: "Voglio automatizzare la gestione delle richieste di supporto clienti via email" },
+    { role: "assistant" as const, content: "Ottimo caso d'uso! Chi esegue attualmente questo lavoro?" },
+    { role: "user" as const, content: "Il nostro team di customer support, circa 3-4 persone che leggono le email e rispondono manualmente" },
+    { role: "assistant" as const, content: "Perfetto. Quali strumenti usate attualmente? Gmail, un ticketing system, o altro?" },
+    { role: "user" as const, content: "Usiamo Gmail per ricevere le email e un foglio Excel per tracciare le richieste" },
+    { role: "assistant" as const, content: "Capito. Quanto tempo mediamente richiede gestire una richiesta di supporto, dalla lettura della email alla risposta?" },
+    { role: "user" as const, content: "In media 10-15 minuti per richiesta, considerando il tempo per leggere, cercare informazioni e rispondere" },
+    { role: "assistant" as const, content: "Ok, ricapitolando su come funziona oggi:\n- Chi: Team di 3-4 persone del supporto\n- Strumenti: Gmail + Excel\n- Tempo: 10-15 minuti per richiesta\n- Problemi: Manuale, ripetitivo, lento\n\nAdesso immagina il futuro ideale: come dovrebbe funzionare con un agente AI? Cosa dovrebbe fare?" },
+    { role: "user" as const, content: "L'agente dovrebbe leggere le email, categorizzarle, trovare la risposta appropriata dalla nostra knowledge base e rispondere automaticamente. Per le richieste complesse, dovrebbe avvisare il nostro team" },
+    { role: "assistant" as const, content: "Fantastico. Quali sarebbero i principali benefici per il vostro team?" },
+    { role: "user" as const, content: "Ridurremmo il tempo a 1-2 minuti per richiesta (solo revisione), potremmo gestire più clienti con lo stesso team, e ridurremmo gli errori. Stimiamo un risparmio di 20 ore a settimana" },
+    { role: "assistant" as const, content: "Eccellente. L'agente dovrebbe decidere tutto in autonomia o dovrebbe supportare le decisioni del team?" },
+    { role: "user" as const, content: "Preferibilmente affiancamento: l'agente suggerisce la risposta e il team la approva prima di inviarla. Per le risposte template standard può andare in autonomia" },
+    { role: "assistant" as const, content: "Perfetto. A quali dati o sistemi dovrebbe accedere l'agente? La vostra knowledge base dove è? E come potrebbe inviare le email?" },
+    { role: "user" as const, content: "Abbiamo una knowledge base in Notion e un account Gmail. Quindi dovrebbe accedere a Notion per cercare risposte e usare Gmail API per inviare le email" },
+    { role: "assistant" as const, content: "Fantastico, ho tutto quello che mi serve. Grazie mille! [ANALISI_PRONTA]" },
+  ];
+
+  const handleLoadTestData = async () => {
+    setIsTestMode(true);
+    setMessages([]);
+    setInput("");
+    setIsFinished(false);
+    setAnalysisData(null);
+
+    // Simulate loading the test conversation
+    for (const msg of testConversation) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: msg.role,
+          content: msg.content,
+        },
+      ]);
+    }
+
+    setIsFinished(true);
+  };
+
+  const handleReset = () => {
+    setIsTestMode(false);
+    setMessages([
+      {
+        id: "1",
+        role: "assistant",
+        content: discoveryFlow.initialMessage,
+      },
+    ]);
+    setInput("");
+    setIsFinished(false);
+    setAnalysisData(null);
+  };
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -206,16 +264,36 @@ export default function Conversation() {
     <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-3 md:py-4 shadow-sm flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <Sparkles className="text-purple-600 flex-shrink-0" size={24} />
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold text-slate-900 truncate">
-              Configuratore Agenti AI
-            </h1>
-            <p className="text-xs md:text-sm text-slate-600 mt-0.5 truncate">
-              Identifica come automatizzare un tuo processo
-            </p>
+        <div className="flex items-center gap-2 justify-between">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Sparkles className="text-purple-600 flex-shrink-0" size={24} />
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold text-slate-900 truncate">
+                Configuratore Agenti AI
+              </h1>
+              <p className="text-xs md:text-sm text-slate-600 mt-0.5 truncate">
+                Identifica come automatizzare un tuo processo
+              </p>
+            </div>
           </div>
+          {!isTestMode ? (
+            <button
+              onClick={handleLoadTestData}
+              disabled={isLoading || isAnalyzing}
+              className="flex-shrink-0 px-3 py-1.5 text-xs md:text-sm bg-slate-100 hover:bg-slate-200 disabled:bg-gray-300 text-slate-700 rounded transition whitespace-nowrap ml-2"
+              title="Carica una conversazione di esempio"
+            >
+              📝 Test
+            </button>
+          ) : (
+            <button
+              onClick={handleReset}
+              className="flex-shrink-0 px-3 py-1.5 text-xs md:text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded transition whitespace-nowrap ml-2"
+              title="Ricomincia da zero"
+            >
+              ↻ Reset
+            </button>
+          )}
         </div>
       </div>
 
