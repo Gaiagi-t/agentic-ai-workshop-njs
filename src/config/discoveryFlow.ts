@@ -109,13 +109,6 @@ Analizza la conversazione e genera un JSON con questa struttura:
       "timeToImplement": "2-3 settimane"
     }
   },
-  "copilotConfigurationGuide": {
-    "step1": "Descrizione del primo step",
-    "step2": "Descrizione del secondo step",
-    "step3": "Descrizione del terzo step",
-    "step4": "Descrizione del quarto step",
-    "customInstructionsTemplate": "Template delle istruzioni personalizzate per il Copilot"
-  },
   "nextSteps": ["Azione 1", "Azione 2", "Azione 3"]
 }
 
@@ -138,10 +131,10 @@ REGOLE VALUTAZIONE REALISTICA (Feb 2026):
 - ⚠️ Utili SOLO se: Orchestrazione 5+ sistemi, trasformazioni dati massicce, API legacy SOAP
 - Workaround: Esporre REST endpoint che Studio/Chat consume
 
-**GUIDA CONFIGURAZIONE**:
-- Copilot Chat: 4 step semplici (load KB, setup agent, test, deploy)
-- Copilot Studio: 6 step + connector setup (più complesso)
-- Template: Codice reale per custom REST connector o Power Automate flow
+**FOCUS VALUTAZIONE**:
+- Valuta fattibilità per il caso d'uso specifico
+- Distingui tra Chat (KB only), Studio (Power Platform connectors), Altre piattaforme
+- Non fornire guide di configurazione - la valutazione stessa guida il processo decisionale
 
 REGOLE GENERALI:
 - Rispondi SOLO con JSON valido

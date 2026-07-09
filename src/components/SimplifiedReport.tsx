@@ -60,13 +60,6 @@ type AnalysisData = {
       timeToImplement: string;
     };
   };
-  copilotConfigurationGuide?: {
-    step1: string;
-    step2: string;
-    step3: string;
-    step4: string;
-    customInstructionsTemplate: string;
-  };
   roadmap: Array<{
     phase: string;
     duration: string;
@@ -511,39 +504,6 @@ ${data.agentConfig.requiredTools.map((t) => `- ${t}`).join("\n")}
             </motion.div>
           )}
 
-          {/* Copilot Configuration Guide */}
-          {data.copilotConfigurationGuide && (
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mb-8 p-6 bg-cyan-50 rounded-lg border-2 border-cyan-200"
-            >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">📖 Mini-Guida Configurazione Copilot</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {[
-                    { title: "Step 1: Setup Iniziale", desc: data.copilotConfigurationGuide.step1 },
-                    { title: "Step 2: Configurazione Agente", desc: data.copilotConfigurationGuide.step2 },
-                    { title: "Step 3: Integrazione Dati", desc: data.copilotConfigurationGuide.step3 },
-                    { title: "Step 4: Test e Deploy", desc: data.copilotConfigurationGuide.step4 },
-                  ].map((step, i) => (
-                    <div key={i} className="p-4 bg-white rounded border-l-4 border-cyan-500">
-                      <p className="font-bold text-gray-900">{step.title}</p>
-                      <p className="text-sm text-gray-700 mt-2">{step.desc}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 p-4 bg-white rounded border border-dashed border-cyan-400">
-                  <p className="text-xs font-semibold text-gray-600 mb-2">Template Istruzioni Personalizzate:</p>
-                  <code className="text-xs bg-gray-50 p-3 rounded block whitespace-pre-wrap break-words">
-                    {data.copilotConfigurationGuide.customInstructionsTemplate}
-                  </code>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </div>
 
         {/* Action Buttons */}
