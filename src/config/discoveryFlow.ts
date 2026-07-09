@@ -39,10 +39,14 @@ export const discoveryFlow = {
 Quando senti di avere abbastanza informazioni, termina con [ANALISI_PRONTA].
 `,
 
-  // Analysis prompt for structured output with Copilot evaluation
-  analysisPrompt: `Sei un esperto di agenti AI che analizza conversazioni e genera configurazioni di agenti personalizzati per Copilot Chat.
+  // Analysis prompt for structured output with realistic Copilot evaluation
+  analysisPrompt: `Sei un esperto di agenti AI che analizza conversazioni e genera configurazioni REALISTICHE per Copilot Chat vs Copilot Studio.
 
-**IMPORTANTE**: Valuta la fattibilità SPECIFICA per Copilot Chat (agenti personalizzati Microsoft).
+**LIMITAZIONI REALI - Feb 2026**:
+- **Copilot Chat**: Solo Knowledge Base (PDF, Word, Excel) + Federated Connectors read-only (Notion, Canva, Linear, Google Contacts)
+- **Copilot Chat NON supporta**: Gmail nativamente (solo Outlook), Slack, API custom, write operations
+- **Copilot Studio**: Power Platform Connectors (1.400+), custom REST API, Gmail/Slack via custom connector, write operations
+- **Quando usare n8n/Make**: Solo se orchestrazione di 5+ sistemi oppure trasformazioni dati massive
 
 Analizza la conversazione e genera un JSON con questa struttura:
 
@@ -82,13 +86,28 @@ Analizza la conversazione e genera un JSON con questa struttura:
     {"phase": "Implementazione", "duration": "2-4 settimane", "focus": "Setup completo"}
   ],
   "copilotEvaluation": {
-    "feasibility": "Alta/Media/Bassa",
-    "feasibilityScore": 8,
-    "reasons": ["Motivo 1", "Motivo 2"],
-    "challenges": ["Sfida 1", "Sfida 2"],
-    "estimatedComplexity": "Semplice/Moderato/Complesso",
-    "toolsNeeded": ["Tool 1", "Tool 2"],
-    "dataIntegrationComplexity": "Semplice/Moderato/Complesso"
+    "chatLevel": {
+      "feasibility": "Fattibile/Parziale/Non fattibile",
+      "score": 8,
+      "description": "Valutazione con Copilot Chat (incluso M365, KB + federated connectors)",
+      "connectorSupport": "Notion/Google Drive/Google Calendar sono supportati nativamente",
+      "limitations": ["Gmail NON supportato (solo Outlook)", "NO write operations", "NO Slack"],
+      "timeToImplement": "1-2 giorni"
+    },
+    "studioLevel": {
+      "feasibility": "Fattibile/Più semplice di Chat",
+      "score": 9,
+      "description": "Valutazione con Copilot Studio (1000+ Power Platform connectors)",
+      "connectorSupport": "Gmail via custom REST, Slack via custom REST, Notion full API, write operations abilitate",
+      "advantages": ["Custom REST API support", "Write/Update operations", "Power Automate flows", "Full CRUD"],
+      "costs": "$50-200/mese per agent",
+      "timeToImplement": "3-7 giorni"
+    },
+    "otherPlatforms": {
+      "recommendation": "n8n/Make solo se orchestrazione 5+ sistemi oppure trasformazioni dati massive",
+      "whenConsider": ["Multi-system orchestration", "Legacy API SOAP/XML", "Custom audit logging", "High-frequency polling"],
+      "timeToImplement": "2-3 settimane"
+    }
   },
   "copilotConfigurationGuide": {
     "step1": "Descrizione del primo step",
@@ -100,13 +119,29 @@ Analizza la conversazione e genera un JSON con questa struttura:
   "nextSteps": ["Azione 1", "Azione 2", "Azione 3"]
 }
 
-REGOLE VALUTAZIONE COPILOT CHAT:
-- Valuta la fattibilità SPECIFICA per Copilot Chat (agenti personalizzati Microsoft)
-- Feasibility: Alta (realizzabile in < 1 settimana), Media (1-2 settimane), Bassa (> 2 settimane o non fattibile)
-- Score: 1-10 (10 = massima fattibilità, 1 = non fattibile)
-- Identifica quali Tools/API sono già disponibili in Copilot vs quali richiedono custom API
-- Data integration: valuta se i dati sono accessibili via API standard o richiedono bridge
-- La guida di configurazione deve essere PRATICA e step-by-step (4 step minimo)
+REGOLE VALUTAZIONE REALISTICA (Feb 2026):
+
+**COPILOT CHAT LEVEL** (incluso M365, gratuito):
+- ✅ Supportato: Notion (federated read-only), Google Drive, Google Calendar, Google Contacts, Canva, Linear, Asana, Jira, GitHub, ServiceNow, HubSpot
+- ❌ NON supportato: Gmail nativamente (solo Outlook), Slack, Salesforce diretto, write operations, azioni complesse
+- Caso: Read-only su KB o lettura API federate → COPILOT CHAT BASTA
+- Score: 1-10 (10 = massima fattibilità Chat)
+
+**COPILOT STUDIO LEVEL** (separato, $50-200/mese):
+- ✅ Supportato: 1000+ Power Platform connectors + custom REST API + Gmail/Slack via custom connector + write operations
+- ✅ Permette: Power Automate flows, CRUD operations, complex workflows
+- Caso: Write operations, API personalizzate, orchestrazione complessa → STUDIO RICHIESTO
+- Score: 1-10 (10 = massima fattibilità Studio)
+
+**ALTRE PIATTAFORME** (n8n, Make, Zapier):
+- ❌ NO supporto nativo come connectors
+- ⚠️ Utili SOLO se: Orchestrazione 5+ sistemi, trasformazioni dati massicce, API legacy SOAP
+- Workaround: Esporre REST endpoint che Studio/Chat consume
+
+**GUIDA CONFIGURAZIONE**:
+- Copilot Chat: 4 step semplici (load KB, setup agent, test, deploy)
+- Copilot Studio: 6 step + connector setup (più complesso)
+- Template: Codice reale per custom REST connector o Power Automate flow
 
 REGOLE GENERALI:
 - Rispondi SOLO con JSON valido

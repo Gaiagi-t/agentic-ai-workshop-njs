@@ -38,13 +38,28 @@ type AnalysisData = {
     priority: string;
   };
   copilotEvaluation?: {
-    feasibility: string;
-    feasibilityScore: number;
-    reasons: string[];
-    challenges: string[];
-    estimatedComplexity: string;
-    toolsNeeded: string[];
-    dataIntegrationComplexity: string;
+    chatLevel?: {
+      feasibility: string;
+      score: number;
+      description: string;
+      connectorSupport: string;
+      limitations: string[];
+      timeToImplement: string;
+    };
+    studioLevel?: {
+      feasibility: string;
+      score: number;
+      description: string;
+      connectorSupport: string;
+      advantages: string[];
+      costs: string;
+      timeToImplement: string;
+    };
+    otherPlatforms?: {
+      recommendation: string;
+      whenConsider: string[];
+      timeToImplement: string;
+    };
   };
   copilotConfigurationGuide?: {
     step1: string;
@@ -338,58 +353,73 @@ ${data.agentConfig.requiredTools.map((t) => `- ${t}`).join("\n")}
             </ol>
           </motion.div>
 
-          {/* Copilot Chat Evaluation */}
+          {/* Copilot Evaluation - 3 Levels */}
           {data.copilotEvaluation && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.7 }}
-              className="mb-8 p-6 bg-orange-50 rounded-lg border-2 border-orange-200"
+              className="mb-8 p-6 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg border-2 border-orange-300"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">🎯 Fattibilità Copilot Chat</h2>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="text-3xl font-bold text-orange-600">{data.copilotEvaluation.feasibilityScore}/10</div>
-                    <div>
-                      <p className="font-bold text-gray-900">Fattibilità: {data.copilotEvaluation.feasibility}</p>
-                      <p className="text-sm text-gray-600">Complessità: {data.copilotEvaluation.estimatedComplexity}</p>
-                    </div>
-                  </div>
-                </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">🎯 Valutazione Fattibilità Copilot</h2>
+              <p className="text-sm text-gray-700 mb-4 italic">Tre livelli di implementazione con costi e complessità diversi</p>
 
-                <div>
-                  <strong>Motivi della fattibilità:</strong>
-                  <ul className="list-disc list-inside mt-2 space-y-1">
-                    {data.copilotEvaluation.reasons.map((reason, i) => (
-                      <li key={i} className="text-gray-700 text-sm">{reason}</li>
+              {/* Level 1: Copilot Chat */}
+              {data.copilotEvaluation.chatLevel && (
+                <div className="mb-4 p-4 bg-white rounded-lg border-l-4 border-orange-500">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-bold text-lg text-gray-900">1️⃣ Copilot Chat (Gratuito con M365)</h3>
+                    <div className="text-2xl font-bold text-orange-600">{data.copilotEvaluation.chatLevel.score}/10</div>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">{data.copilotEvaluation.chatLevel.description}</p>
+                  <p className="text-sm"><strong>Supporto connectors:</strong> {data.copilotEvaluation.chatLevel.connectorSupport}</p>
+                  <p className="text-sm mt-2"><strong>Limitazioni:</strong></p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {data.copilotEvaluation.chatLevel.limitations.map((limit, i) => (
+                      <li key={i} className="text-xs text-red-700">{limit}</li>
                     ))}
                   </ul>
+                  <p className="text-xs text-gray-600 mt-2">⏱️ Tempo setup: {data.copilotEvaluation.chatLevel.timeToImplement}</p>
                 </div>
+              )}
 
-                <div>
-                  <strong>Sfide da considerare:</strong>
-                  <ul className="list-disc list-inside mt-2 space-y-1">
-                    {data.copilotEvaluation.challenges.map((challenge, i) => (
-                      <li key={i} className="text-gray-700 text-sm">{challenge}</li>
+              {/* Level 2: Copilot Studio */}
+              {data.copilotEvaluation.studioLevel && (
+                <div className="mb-4 p-4 bg-white rounded-lg border-l-4 border-blue-500">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-bold text-lg text-gray-900">2️⃣ Copilot Studio (Power Platform)</h3>
+                    <div className="text-2xl font-bold text-blue-600">{data.copilotEvaluation.studioLevel.score}/10</div>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">{data.copilotEvaluation.studioLevel.description}</p>
+                  <p className="text-sm"><strong>Supporto connectors:</strong> {data.copilotEvaluation.studioLevel.connectorSupport}</p>
+                  <p className="text-sm mt-2"><strong>Vantaggi:</strong></p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {data.copilotEvaluation.studioLevel.advantages.map((adv, i) => (
+                      <li key={i} className="text-xs text-green-700">{adv}</li>
                     ))}
                   </ul>
+                  <p className="text-xs text-gray-600 mt-2">💰 {data.copilotEvaluation.studioLevel.costs}</p>
+                  <p className="text-xs text-gray-600">⏱️ Tempo setup: {data.copilotEvaluation.studioLevel.timeToImplement}</p>
                 </div>
+              )}
 
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-600">Tool necessari:</p>
-                    <ul className="mt-1 space-y-1">
-                      {data.copilotEvaluation.toolsNeeded.map((tool, i) => (
-                        <li key={i} className="text-xs bg-orange-100 px-2 py-1 rounded text-orange-900 w-fit">{tool}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-600">Integrazione dati:</p>
-                    <p className="text-sm text-gray-700 mt-1">{data.copilotEvaluation.dataIntegrationComplexity}</p>
-                  </div>
+              {/* Level 3: Other Platforms */}
+              {data.copilotEvaluation.otherPlatforms && (
+                <div className="p-4 bg-white rounded-lg border-l-4 border-gray-400">
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">3️⃣ Altre Piattaforme (n8n, Make, Zapier)</h3>
+                  <p className="text-sm text-gray-700 mb-2">{data.copilotEvaluation.otherPlatforms.recommendation}</p>
+                  <p className="text-sm"><strong>Considera se:</strong></p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {data.copilotEvaluation.otherPlatforms.whenConsider.map((when, i) => (
+                      <li key={i} className="text-xs text-gray-700">{when}</li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-gray-600 mt-2">⏱️ Tempo setup: {data.copilotEvaluation.otherPlatforms.timeToImplement}</p>
                 </div>
+              )}
+
+              <div className="mt-4 p-3 bg-yellow-100 rounded border border-yellow-400">
+                <p className="text-xs text-yellow-900"><strong>💡 Consiglio:</strong> Inizia sempre da Copilot Chat (gratuito). Passa a Studio solo se hai esigenze di write operations o API custom.</p>
               </div>
             </motion.div>
           )}
