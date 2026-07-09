@@ -1,9 +1,4 @@
 {
-  "env": {
-    "OPENAI_API_KEY": {
-      "description": "OpenAI API key per GPT-4o-mini e Whisper"
-    }
-  },
   "buildCommand": "npm run build",
   "outputDirectory": ".next"
 }
