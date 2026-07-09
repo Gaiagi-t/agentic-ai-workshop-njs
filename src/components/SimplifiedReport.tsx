@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Download, Copy, Check } from "lucide-react";
 import { useState } from "react";
-import html2canvas from "html2canvas";
+import { Document, Packer, Paragraph, HeadingLevel } from "docx";
 
 type AnalysisData = {
   useCase: string;
@@ -84,32 +84,132 @@ export default function SimplifiedReport({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const handleExportPNG = async () => {
-    const element = document.getElementById("report-content");
-    if (!element) {
-      alert("Errore: non trovo il report. Ricarica la pagina.");
-      return;
-    }
-
+  const handleExportWord = async () => {
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        allowTaint: true,
+      const sections = [
+        new Paragraph({
+          text: data.useCase,
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 200 },
+        }),
+        new Paragraph({
+          text: data.summary,
+          spacing: { after: 400 },
+        }),
+
+        // AS-IS
+        new Paragraph({
+          text: "📌 Come funziona oggi (AS-IS)",
+          heading: HeadingLevel.HEADING_2,
+          spacing: { after: 200 },
+        }),
+        new Paragraph({ text: `Chi lo fa: ${data.asIs.actors}`, spacing: { after: 100 } }),
+        new Paragraph({ text: `Strumenti usati: ${data.asIs.tools}`, spacing: { after: 100 } }),
+        new Paragraph({ text: `Tempo richiesto: ${data.asIs.duration}`, spacing: { after: 100 } }),
+        new Paragraph({
+          text: `Problemi principali:\n${data.asIs.painPoints.map((p) => `• ${p}`).join("\n")}`,
+          spacing: { after: 400 },
+        }),
+
+        // TO-BE
+        new Paragraph({
+          text: "🚀 La visione con l'agente (TO-BE)",
+          heading: HeadingLevel.HEADING_2,
+          spacing: { after: 200 },
+        }),
+        new Paragraph({ text: `Visione: ${data.toBe.vision}`, spacing: { after: 100 } }),
+        new Paragraph({
+          text: `Approccio: ${data.toBe.approach} ${data.toBe.autonomyLevel ? `(${data.toBe.autonomyLevel})` : ""}`,
+          spacing: { after: 100 },
+        }),
+        new Paragraph({
+          text: `Benefici attesi:\n${data.toBe.benefits.map((b) => `• ${b}`).join("\n")}`,
+          spacing: { after: 400 },
+        }),
+
+        // Agent Config
+        new Paragraph({
+          text: "🤖 Configurazione dell'Agente",
+          heading: HeadingLevel.HEADING_2,
+          spacing: { after: 200 },
+        }),
+        new Paragraph({ text: `Nome: ${data.agentConfig.name}`, spacing: { after: 100 } }),
+        new Paragraph({ text: `Ruolo: ${data.agentConfig.role}`, spacing: { after: 100 } }),
+        new Paragraph({ text: `Obiettivo: ${data.agentConfig.primaryGoal}`, spacing: { after: 100 } }),
+        new Paragraph({ text: `Descrizione: ${data.agentConfig.description}`, spacing: { after: 100 } }),
+        new Paragraph({
+          text: `Fonti dati: ${data.agentConfig.requiredDataSources.join(", ")}`,
+          spacing: { after: 100 },
+        }),
+        new Paragraph({
+          text: `Tool: ${data.agentConfig.requiredTools.join(", ")}`,
+          spacing: { after: 400 },
+        }),
+
+        // Copilot Evaluation
+        ...(data.copilotEvaluation
+          ? [
+              new Paragraph({
+                text: "🎯 Valutazione Fattibilità Copilot",
+                heading: HeadingLevel.HEADING_2,
+                spacing: { after: 200 },
+              }),
+              ...(data.copilotEvaluation.chatLevel
+                ? [
+                    new Paragraph({
+                      text: `Copilot Chat (Score: ${data.copilotEvaluation.chatLevel.score}/10)`,
+                      heading: HeadingLevel.HEADING_3,
+                      spacing: { after: 100 },
+                    }),
+                    new Paragraph({
+                      text: `${data.copilotEvaluation.chatLevel.description}\nLimitazioni: ${data.copilotEvaluation.chatLevel.limitations.join(", ")}`,
+                      spacing: { after: 200 },
+                    }),
+                  ]
+                : []),
+              ...(data.copilotEvaluation.studioLevel
+                ? [
+                    new Paragraph({
+                      text: `Copilot Studio (Score: ${data.copilotEvaluation.studioLevel.score}/10)`,
+                      heading: HeadingLevel.HEADING_3,
+                      spacing: { after: 100 },
+                    }),
+                    new Paragraph({
+                      text: `${data.copilotEvaluation.studioLevel.description}\nVantaggi: ${data.copilotEvaluation.studioLevel.advantages.join(", ")}\nCosti: ${data.copilotEvaluation.studioLevel.costs}`,
+                      spacing: { after: 400 },
+                    }),
+                  ]
+                : []),
+            ]
+          : []),
+
+        // Next Steps
+        new Paragraph({
+          text: "✅ Prossimi passi",
+          heading: HeadingLevel.HEADING_2,
+          spacing: { after: 200 },
+        }),
+        new Paragraph({
+          text: data.nextSteps.map((step, i) => `${i + 1}. ${step}`).join("\n"),
+          spacing: { after: 400 },
+        }),
+      ];
+
+      const doc = new Document({
+        sections: [{ children: sections }],
       });
 
-      // Converti canvas a PNG e scarica
+      const blob = await Packer.toBlob(doc);
       const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
-      link.download = `${data.useCase.replace(/\s+/g, "-").toLowerCase()}-agente-config.png`;
+      link.href = URL.createObjectURL(blob);
+      link.download = `${data.useCase.replace(/\s+/g, "-").toLowerCase()}-agente-config.docx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
     } catch (error) {
-      console.error("Export PNG error:", error);
-      alert("Errore durante il download dell'immagine. Riprova.");
+      console.error("Export Word error:", error);
+      alert("Errore durante il download. Riprova.");
     }
   };
 
@@ -463,11 +563,11 @@ ${data.agentConfig.requiredTools.map((t) => `- ${t}`).join("\n")}
             JSON
           </button>
           <button
-            onClick={handleExportPNG}
+            onClick={handleExportWord}
             className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition"
           >
             <Download size={18} />
-            PNG
+            Word
           </button>
           <button
             onClick={onClose}
