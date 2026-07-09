@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Download, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 type AnalysisData = {
   useCase: string;
@@ -85,7 +84,7 @@ export default function SimplifiedReport({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const handleExportPDF = async () => {
+  const handleExportPNG = async () => {
     const element = document.getElementById("report-content");
     if (!element) {
       alert("Errore: non trovo il report. Ricarica la pagina.");
@@ -93,54 +92,24 @@ export default function SimplifiedReport({
     }
 
     try {
-      // Clone the element to avoid modifying the original
-      const clonedElement = element.cloneNode(true) as HTMLElement;
-
-      // Create a temporary container
-      const tempContainer = document.createElement("div");
-      tempContainer.style.position = "fixed";
-      tempContainer.style.left = "-9999px";
-      tempContainer.style.top = "-9999px";
-      tempContainer.style.width = "800px";
-      tempContainer.style.backgroundColor = "white";
-      tempContainer.appendChild(clonedElement);
-      document.body.appendChild(tempContainer);
-
-      const canvas = await html2canvas(tempContainer, {
-        scale: 1.5,
+      const canvas = await html2canvas(element, {
+        scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
         allowTaint: true,
-        width: 800,
-        windowWidth: 800,
       });
 
-      document.body.removeChild(tempContainer);
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      const filename = `${data.useCase.replace(/\s+/g, "-").toLowerCase()}-agente-config.pdf`;
-      pdf.save(filename);
+      // Converti canvas a PNG e scarica
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = `${data.useCase.replace(/\s+/g, "-").toLowerCase()}-agente-config.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
-      console.error("Export PDF error:", error);
-      alert("Errore durante il download del PDF. Prova di nuovo o scarica come immagine.");
+      console.error("Export PNG error:", error);
+      alert("Errore durante il download dell'immagine. Riprova.");
     }
   };
 
@@ -494,11 +463,11 @@ ${data.agentConfig.requiredTools.map((t) => `- ${t}`).join("\n")}
             JSON
           </button>
           <button
-            onClick={handleExportPDF}
+            onClick={handleExportPNG}
             className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition"
           >
             <Download size={18} />
-            PDF
+            PNG
           </button>
           <button
             onClick={onClose}

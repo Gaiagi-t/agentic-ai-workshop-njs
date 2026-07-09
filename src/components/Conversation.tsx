@@ -261,9 +261,9 @@ export default function Conversation() {
   };
 
   return (
-    <div className="flex flex-col h-dvh w-screen bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden safe-area-inset-bottom">
+    <div className="flex flex-col fixed inset-0 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-3 md:py-4 shadow-sm flex-shrink-0 safe-area-inset-top">
+      <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-3 md:py-4 shadow-sm flex-shrink-0">
         <div className="flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Sparkles className="text-purple-600 flex-shrink-0" size={24} />
