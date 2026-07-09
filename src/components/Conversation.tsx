@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, Square, Sparkles } from "lucide-react";
+import { Send, Mic, Square, Sparkles, Menu, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import discoveryFlow from "@/config/discoveryFlow";
 
-const SimplifiedReport = dynamic(() => import("./SimplifiedReport"), { ssr: false });
+const SimplifiedReport = dynamic(() => import("./SimplifiedReport"), { ssr: false, loading: () => <div className="p-8">Caricando...</div> });
 
 type Message = {
   id: string;
@@ -203,26 +203,28 @@ export default function Conversation() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="text-purple-600" />
-            Configuratore Agenti AI
-          </h1>
-          <p className="text-sm text-slate-600 mt-1">
-            Identifica come automatizzare un tuo processo quotidiano
-          </p>
+      <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-3 md:py-4 shadow-sm flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <Sparkles className="text-purple-600 flex-shrink-0" size={24} />
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-slate-900 truncate">
+              Configuratore Agenti AI
+            </h1>
+            <p className="text-xs md:text-sm text-slate-600 mt-0.5 truncate">
+              Identifica come automatizzare un tuo processo
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 overflow-hidden flex flex-col max-w-4xl w-full mx-auto">
+      <div className="flex-1 overflow-hidden flex flex-col w-full">
         {/* Messages Area */}
         <div
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto p-6 space-y-4"
+          className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-3 md:space-y-4 w-full"
         >
           <AnimatePresence>
             {messages.map((msg) => (
@@ -261,56 +263,56 @@ export default function Conversation() {
           )}
         </div>
 
-        {/* Input Area */}
-        <div className="bg-white border-t border-slate-200 p-4">
-          <div className="max-w-4xl mx-auto">
-            {isFinished && !analysisData ? (
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="flex gap-2"
+        {/* Input Area - Mobile Fixed Bottom */}
+        <div className="bg-white border-t border-slate-200 px-3 md:px-6 py-3 flex-shrink-0 w-full">
+          {isFinished && !analysisData ? (
+            <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="flex gap-2 w-full"
+            >
+              <button
+                onClick={handleAnalysis}
+                disabled={isLoading}
+                className="flex-1 px-3 md:px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg font-semibold transition flex items-center justify-center gap-1 md:gap-2 text-sm md:text-base"
               >
-                <button
-                  onClick={handleAnalysis}
-                  disabled={isLoading}
-                  className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2"
-                >
-                  <Sparkles size={18} />
-                  {isLoading ? "Generando configurazione..." : "Genera Configurazione Agente"}
-                </button>
-              </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Scrivi la tua risposta..."
-                  disabled={isLoading || isAnalyzing}
-                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
-                />
-                <button
-                  type="button"
-                  onClick={toggleRecording}
-                  className={`p-2 rounded-lg transition ${
-                    isRecording
-                      ? "bg-red-500 text-white"
-                      : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                  }`}
-                  disabled={isLoading}
-                >
-                  {isRecording ? <Square size={18} /> : <Mic size={18} />}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading || isAnalyzing || !input.trim()}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition flex items-center gap-2"
-                >
-                  <Send size={18} />
-                </button>
-              </form>
-            )}
-          </div>
+                <Sparkles size={18} className="flex-shrink-0" />
+                <span className="truncate">{isLoading ? "Generando..." : "Genera Config"}</span>
+              </button>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex gap-2 w-full">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Rispondi..."
+                disabled={isLoading || isAnalyzing}
+                className="flex-1 px-3 md:px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100 text-sm md:text-base"
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                onClick={toggleRecording}
+                className={`p-2 rounded-lg transition flex-shrink-0 ${
+                  isRecording
+                    ? "bg-red-500 text-white"
+                    : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                }`}
+                disabled={isLoading}
+                title={isRecording ? "Stop recording" : "Start recording"}
+              >
+                {isRecording ? <Square size={18} /> : <Mic size={18} />}
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading || isAnalyzing || !input.trim()}
+                className="px-3 md:px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition flex items-center flex-shrink-0"
+              >
+                <Send size={18} />
+              </button>
+            </form>
+          )}
         </div>
       </div>
 

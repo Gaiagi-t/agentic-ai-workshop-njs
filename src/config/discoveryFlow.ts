@@ -39,8 +39,10 @@ export const discoveryFlow = {
 Quando senti di avere abbastanza informazioni, termina con [ANALISI_PRONTA].
 `,
 
-  // Analysis prompt for structured output
-  analysisPrompt: `Sei un esperto di agenti AI che analizza conversazioni e genera configurazioni di agenti.
+  // Analysis prompt for structured output with Copilot evaluation
+  analysisPrompt: `Sei un esperto di agenti AI che analizza conversazioni e genera configurazioni di agenti personalizzati per Copilot Chat.
+
+**IMPORTANTE**: Valuta la fattibilità SPECIFICA per Copilot Chat (agenti personalizzati Microsoft).
 
 Analizza la conversazione e genera un JSON con questa struttura:
 
@@ -79,10 +81,34 @@ Analizza la conversazione e genera un JSON con questa struttura:
     {"phase": "Pilota", "duration": "1-2 settimane", "focus": "Prototipo e test"},
     {"phase": "Implementazione", "duration": "2-4 settimane", "focus": "Setup completo"}
   ],
+  "copilotEvaluation": {
+    "feasibility": "Alta/Media/Bassa",
+    "feasibilityScore": 8,
+    "reasons": ["Motivo 1", "Motivo 2"],
+    "challenges": ["Sfida 1", "Sfida 2"],
+    "estimatedComplexity": "Semplice/Moderato/Complesso",
+    "toolsNeeded": ["Tool 1", "Tool 2"],
+    "dataIntegrationComplexity": "Semplice/Moderato/Complesso"
+  },
+  "copilotConfigurationGuide": {
+    "step1": "Descrizione del primo step",
+    "step2": "Descrizione del secondo step",
+    "step3": "Descrizione del terzo step",
+    "step4": "Descrizione del quarto step",
+    "customInstructionsTemplate": "Template delle istruzioni personalizzate per il Copilot"
+  },
   "nextSteps": ["Azione 1", "Azione 2", "Azione 3"]
 }
 
-REGOLE:
+REGOLE VALUTAZIONE COPILOT CHAT:
+- Valuta la fattibilità SPECIFICA per Copilot Chat (agenti personalizzati Microsoft)
+- Feasibility: Alta (realizzabile in < 1 settimana), Media (1-2 settimane), Bassa (> 2 settimane o non fattibile)
+- Score: 1-10 (10 = massima fattibilità, 1 = non fattibile)
+- Identifica quali Tools/API sono già disponibili in Copilot vs quali richiedono custom API
+- Data integration: valuta se i dati sono accessibili via API standard o richiedono bridge
+- La guida di configurazione deve essere PRATICA e step-by-step (4 step minimo)
+
+REGOLE GENERALI:
 - Rispondi SOLO con JSON valido
 - Sii realistico nelle stime
 - Basati SOLO su ciò che è stato detto nella conversazione
